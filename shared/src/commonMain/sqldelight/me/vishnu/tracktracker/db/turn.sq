@@ -1,0 +1,9 @@
+CREATE TABLE turn (
+    number INTEGER PRIMARY KEY NOT NULL,
+    note_id INTEGER,
+    track_name TEXT NOT NULL
+);
+
+addTurnNote:
+INSERT INTO turn(note_id, track_name)
+VALUES (?, ?);

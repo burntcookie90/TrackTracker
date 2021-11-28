@@ -1,0 +1,21 @@
+CREATE TABLE car (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    year INTEGER NOT NULL,
+    make TEXT NOT NULL,
+    model TEXT NOT NULL,
+    trim TEXT,
+    nickname TEXT,
+    note_id INTEGER
+);
+
+selectAll:
+SELECT *
+FROM car;
+
+insertNewCar:
+INSERT INTO car (year, make, model, trim, nickname)
+VALUES (?, ?, ?, ?, ?);
+
+insertNewCarWithNote:
+INSERT INTO car (year, make, model, trim, nickname, note_id)
+VALUES (?, ?, ?, ?, ?, ?);
