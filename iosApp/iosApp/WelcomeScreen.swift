@@ -2,7 +2,7 @@ import SwiftUI
 import shared
 
 struct WelcomeScreen: ConnectedView {
-    typealias O = WelcomeStore
+    typealias S = WelcomeStore
     typealias M = WelcomeModel
     typealias E = WelcomeEvents
     typealias F = WelcomeEffects
