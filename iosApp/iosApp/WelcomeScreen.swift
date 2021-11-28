@@ -29,41 +29,46 @@ struct WelcomeScreen: ConnectedView {
     }
     
     func body(props: Props) -> some View {
-        VStack {
-            if (props.addCarMode) {
-                AddCarView(onDiscard: props.onDiscardCreateCar, onSubmit: props.onCreateCar)
-            }
-            else {
-                if (props.cars.isEmpty) {
-                    Button("Add a car") {
-                        props.onAddCar()
-                    }
+        NavigationView {
+            VStack {
+                if (props.addCarMode) {
+                    AddCarView(onDiscard: props.onDiscardCreateCar, onSubmit: props.onCreateCar)
                 }
                 else {
-                    ScrollView {
-                        LazyVStack(alignment: .leading) {
-                            ForEach(props.cars, id: \.self) { car in
-                                Text("\(car.titleDisplay())")
-                                    .font(.title3)
-                                if let nickname = car.nickname {
-                                    Text(nickname)
-                                        .font(.subheadline)
+                    if (props.cars.isEmpty) {
+                        addCarButton(onAddCar: props.onAddCar)
+                    }
+                    else {
+                        ScrollView {
+                            LazyVStack(alignment: .leading) {
+                                ForEach(props.cars, id: \.self) { car in
+                                    Text("\(car.titleDisplay())")
+                                        .font(.title3)
+                                    if let nickname = car.nickname {
+                                        Text(nickname)
+                                            .font(.subheadline)
+                                    }
                                 }
                             }
                         }
+                        addCarButton(onAddCar: props.onAddCar)
+                        
                     }
-                    Button("Add a car") {
-                        props.onAddCar()
-                    }
-                    
                 }
             }
+            .navigationTitle("Track Tracker")
+        }
+    }
+    
+    func addCarButton(onAddCar: @escaping () -> Void) -> some View {
+        Button("Add a car") {
+            onAddCar()
         }
     }
 }
 
 struct AddCarView: View {
-    @State private var year: String = ""
+    @State private var year: Int = 2021
     @State private var make: String = ""
     @State private var model: String = ""
     @State private var trim: String = ""
@@ -79,17 +84,24 @@ struct AddCarView: View {
     
     var body: some View {
         VStack {
-            TextField("Year", text: $year).keyboardType(.asciiCapableNumberPad)
-            TextField("Make", text: $make)
-            TextField("Model", text: $model)
-            TextField("trim", text: $trim)
-            TextField("nickname", text: $nickname)
-            HStack {
+            Form {
+                Picker("Year", selection: $year) {
+                    ForEach((1900...2021).reversed(), id: \.self) {
+                        Text(String($0))
+                    }
+                }
+                .pickerStyle(DefaultPickerStyle())
+                TextField("Make", text: $make)
+                TextField("Model", text: $model)
+                TextField("trim", text: $trim)
+                TextField("nickname", text: $nickname)
+            }
+            HStack(spacing: 24) {
                 Button("Discard") {
                     onDiscard()
                 }
                 Button("Submit") {
-                    onSubmit(UiCar(year: Int32(Int(year) ?? 2020), make: make, model: model,
+                    onSubmit(UiCar(year: Int32(year), make: make, model: model,
                                    trim: trim, nickname: nickname))
                 }
             }
