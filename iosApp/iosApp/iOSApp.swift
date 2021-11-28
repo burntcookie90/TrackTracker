@@ -13,7 +13,7 @@ struct iOSApp: App {
         let store = WelcomeStore()
         obsStore = ObservableStore<WelcomeStore, WelcomeModel, WelcomeEvents, WelcomeEffects>(
             store: store,
-            state: WelcomeModel(cars: [UiCar](), addCarMode: false),
+            state: WelcomeModel.Companion.shared.defaultModel(),
             stateWatcher: store.watchState(),
             sideEffectWatcher: store.watchSideEffect()
         )

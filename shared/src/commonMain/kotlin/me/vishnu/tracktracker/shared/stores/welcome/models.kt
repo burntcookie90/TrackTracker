@@ -7,8 +7,14 @@ import me.vishnu.tracktracker.shared.stores.Model
 
 data class WelcomeModel(
   val cars: List<UiCar> = emptyList(),
-  val addCarMode: Boolean = false
-) : Model
+  val addCarMode: Boolean = false,
+  val selectableYears: List<Int> = (1950..2022).reversed().toList()
+) : Model {
+  companion object {
+    fun defaultModel() = WelcomeModel()
+  }
+}
+
 
 sealed class WelcomeEvents : Event {
   object AddCar : WelcomeEvents()

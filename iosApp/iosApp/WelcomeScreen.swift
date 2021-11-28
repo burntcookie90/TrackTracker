@@ -10,6 +10,7 @@ struct WelcomeScreen: ConnectedView {
     struct Props {
         let addCarMode: Bool
         let cars: [UiCar]
+        let selectableYears: [Int]
         let onAddCar: () -> Void
         let onDiscardCreateCar: () -> Void
         let onCreateCar: (UiCar) -> Void
@@ -20,6 +21,9 @@ struct WelcomeScreen: ConnectedView {
         return Props(
             addCarMode: state.addCarMode,
             cars: state.cars,
+            selectableYears: state.selectableYears.map({ kInt in
+                kInt.intValue
+            }),
             onAddCar: { dispatch(WelcomeEvents.AddCar.shared)},
             onDiscardCreateCar: { dispatch(WelcomeEvents.DismissAddCarDialog.shared)},
             onCreateCar: { car in
@@ -32,7 +36,7 @@ struct WelcomeScreen: ConnectedView {
         NavigationView {
             VStack {
                 if (props.addCarMode) {
-                    AddCarView(onDiscard: props.onDiscardCreateCar, onSubmit: props.onCreateCar)
+                    AddCarView(selectableYears: props.selectableYears, onDiscard: props.onDiscardCreateCar, onSubmit: props.onCreateCar)
                 }
                 else {
                     if (props.cars.isEmpty) {
@@ -68,7 +72,7 @@ struct WelcomeScreen: ConnectedView {
 }
 
 struct AddCarView: View {
-    @State private var year: Int = 2021
+    @State private var year: Int
     @State private var make: String = ""
     @State private var model: String = ""
     @State private var trim: String = ""
@@ -76,8 +80,11 @@ struct AddCarView: View {
     
     let onDiscard: () -> Void
     let onSubmit: (UiCar) -> Void
+    let selectableYears: [Int]
     
-    init(onDiscard: @escaping () -> Void, onSubmit: @escaping (UiCar) -> Void) {
+    init(selectableYears: [Int], onDiscard: @escaping () -> Void, onSubmit: @escaping (UiCar) -> Void) {
+        self.selectableYears = selectableYears
+        self.year = self.selectableYears.first ?? 2021
         self.onDiscard = onDiscard
         self.onSubmit = onSubmit
     }
@@ -86,7 +93,7 @@ struct AddCarView: View {
         VStack {
             Form {
                 Picker("Year", selection: $year) {
-                    ForEach((1900...2021).reversed(), id: \.self) {
+                    ForEach(selectableYears, id: \.self) {
                         Text(String($0))
                     }
                 }

@@ -4,19 +4,17 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -73,7 +71,7 @@ fun CarScreen(state: WelcomeModel, eventCallback: (WelcomeEvents) -> Unit) {
     }
   ) {
     if (state.addCarMode) {
-      CarScreenAddCar(eventCallback)
+      CarScreenAddCar(state.selectableYears, eventCallback)
     } else {
       CarScreenDisplay(state)
     }
@@ -81,34 +79,65 @@ fun CarScreen(state: WelcomeModel, eventCallback: (WelcomeEvents) -> Unit) {
 }
 
 @Composable
-private fun CarScreenAddCar(eventCallback: (WelcomeEvents) -> Unit) {
-  val year = remember { mutableStateOf(2021) }
+private fun CarScreenAddCar(selectableYears: List<Int>, eventCallback: (WelcomeEvents) -> Unit) {
+  val year = remember { mutableStateOf(selectableYears.first()) }
+  val yearDisplay = if (year.value == 0) "" else year.value.toString()
   val make = remember { mutableStateOf("") }
   val model = remember { mutableStateOf("") }
-  val trim = remember { mutableStateOf<String?>("") }
-  val nickname = remember { mutableStateOf<String?>("") }
-  Column {
-    TextField(
-      value = year.value.toString(),
-      onValueChange = { year.value = it.toInt() },
-      keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-      label = {
-        Text("Year")
+  val trim = remember { mutableStateOf("") }
+  val nickname = remember { mutableStateOf("") }
+
+  val yearIsValid = selectableYears.contains(year.value)
+
+  val yearDropdownExpanded = remember { mutableStateOf(false) }
+  Column(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(16.dp)
+  ) {
+
+    OutlinedTextField(
+      modifier = Modifier.fillMaxWidth(),
+      keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+      value = yearDisplay,
+      isError = !yearIsValid,
+      onValueChange = { newValue: String ->
+        if (newValue.isNotEmpty()) {
+          year.value = newValue.toInt()
+        }
+        else {
+          year.value = 0
+        }
+      },
+      label = { Text("Year") },
+      trailingIcon = {
+        Box {
+          Icon(
+            modifier = Modifier.clickable { yearDropdownExpanded.value = true },
+            imageVector = Icons.Default.ArrowDropDown,
+            contentDescription = "Dropdown for year selection"
+          )
+
+          DropdownMenu(
+            expanded = yearDropdownExpanded.value,
+            onDismissRequest = { yearDropdownExpanded.value = false }) {
+            selectableYears.forEach { yearToDisplay ->
+              DropdownMenuItem(onClick = {
+                year.value = yearToDisplay
+                yearDropdownExpanded.value = false
+              }) {
+                Text("$yearToDisplay")
+              }
+            }
+          }
+
+        }
       }
     )
-
-    TextField(value = make.value, onValueChange = { make.value = it }, label = {
-      Text("Make")
-    })
-    TextField(value = model.value, onValueChange = { model.value = it }, label = {
-      Text("Model")
-    })
-    TextField(value = trim.value.orEmpty(), onValueChange = { trim.value = it }, label = {
-      Text("Trim")
-    })
-    TextField(value = nickname.value.orEmpty(), onValueChange = { nickname.value = it }, label = {
-      Text("Nickname")
-    })
+    CarInputField(label = "Make", value = make)
+    CarInputField(label = "Model", value = model)
+    CarInputField(label = "Trim", value = trim)
+    CarInputField(label = "Nickname", value = nickname)
 
     Row {
       Button(onClick = { eventCallback(WelcomeEvents.DismissAddCarDialog) }) {
@@ -132,6 +161,18 @@ private fun CarScreenAddCar(eventCallback: (WelcomeEvents) -> Unit) {
       }
     }
   }
+}
+
+@Composable
+private fun CarInputField(label: String, value: MutableState<String>) {
+  TextField(
+    modifier = Modifier.fillMaxWidth(),
+    value = value.value,
+    onValueChange = { value.value = it },
+    label = {
+      Text(label)
+    }
+  )
 }
 
 @Composable
