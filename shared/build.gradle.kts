@@ -27,6 +27,11 @@ kotlin {
   sourceSets {
     val commonMain by getting {
       dependencies {
+        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2-native-mt") {
+          version {
+            strictly("1.5.2-native-mt")
+          }
+        }
         implementation("com.squareup.sqldelight:coroutines-extensions:1.5.3")
         implementation("io.github.aakira:napier:2.1.0")
       }

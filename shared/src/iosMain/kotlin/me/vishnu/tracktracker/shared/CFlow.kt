@@ -1,6 +1,7 @@
 package me.vishnu.tracktracker.shared
 
 
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -14,6 +15,7 @@ fun interface Closeable {
 
 class CFlow<T : Any> internal constructor(private val origin: Flow<T>) : Flow<T> by origin {
   fun watch(block: (T) -> Unit): Closeable {
+    Napier.d("Watching CFlow")
     val job = Job()
 
     onEach {

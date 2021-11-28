@@ -34,9 +34,9 @@ abstract class EffectHandler<F : Effect, E : Event> :
   }
 }
 
-fun <M : Model, E : Event, F : Effect> Loop(
+fun <M : Model, E : Event, F : Effect, H: EffectHandler<F, E>> Loop(
   store: Store<M, E, F>,
-  effectHandler: EffectHandler<F, E>,
+  effectHandler: H,
   init: () -> Set<F>,
 ): Pair<StateFlow<M>, (E) -> Unit> {
   effectHandler.bindToStore(store.observeSideEffect(), store::dispatch)

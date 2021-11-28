@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import me.vishnu.tracktracker.shared.stores.Store
 
-object WelcomeStore : Store<WelcomeModel, WelcomeEvents, WelcomeEffects>,
+class WelcomeStore : Store<WelcomeModel, WelcomeEvents, WelcomeEffects>,
   CoroutineScope by CoroutineScope(Dispatchers.Main) {
 
   private val state = MutableStateFlow(WelcomeModel())

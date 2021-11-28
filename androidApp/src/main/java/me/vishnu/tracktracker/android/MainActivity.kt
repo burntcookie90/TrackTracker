@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
     val carRepo = CarRepo(db.carQueries)
     val (loop, eventCallback) =
       Loop(
-        WelcomeStore,
+        WelcomeStore(),
         WelcomeEffectHandler(carRepo = carRepo, modifier = dataModifier)
       ) {
         setOf(WelcomeEffects.LoadInitialData)

@@ -19,15 +19,16 @@ class ObservableStore<O: Store, M: Model, E: Event, F: Effect>: ObservableObject
     var stateWatcher: Closeable?
     var sideEffectWatcher: Closeable?
     
-    init(store: O, state: M) {
+    init(store: O, state: M, stateWatcher: CFlow<M>, sideEffectWatcher: CFlow<F>) {
         self.store = store
         self.state = state
         
-        stateWatcher = IosReduxUtilsKt.watchState(store).watch { [weak self] state in
-            self?.state = state as! M
+        self.stateWatcher = stateWatcher.watch { [weak self] state in
+            self?.state = state
         }
-        sideEffectWatcher = IosReduxUtilsKt.watchSideEffect(store).watch { [weak self] state in
-            self?.sideEffect = state as? F
+        
+        self.sideEffectWatcher = sideEffectWatcher.watch { [weak self] state in
+            self?.sideEffect = state
         }
     }
     
