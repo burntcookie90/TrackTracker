@@ -27,9 +27,12 @@ class WelcomeStore : Store<WelcomeModel, WelcomeEvents, WelcomeEffects>,
   override fun observeSideEffect() = sideEffect
 
   override fun dispatch(event: WelcomeEvents) {
+    Napier.d("Event received: $event")
     val oldState = state.value
     when (event) {
-      WelcomeEvents.AddCar -> launch { state.value = oldState.copy(addCarMode = true) }
+      WelcomeEvents.AddCar -> launch {
+        state.value = oldState.copy(addCarMode = true)
+      }
       WelcomeEvents.DismissAddCarDialog -> launch {
         state.value = oldState.copy(addCarMode = false)
       }

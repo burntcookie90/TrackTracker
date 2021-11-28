@@ -11,24 +11,21 @@ struct iOSApp: App {
     init() {
         LoggerKt.doInitLogger()
         let store = WelcomeStore()
-        let stateWatcher = store.watchState()
-        
-        let sideEffectWatcher = store.watchSideEffect()
         obsStore = ObservableStore<WelcomeStore, WelcomeModel, WelcomeEvents, WelcomeEffects>(
-            store: WelcomeStore(),
+            store: store,
             state: WelcomeModel(cars: [UiCar](), addCarMode: false),
-            stateWatcher: stateWatcher,
-            sideEffectWatcher: sideEffectWatcher
+            stateWatcher: store.watchState(),
+            sideEffectWatcher: store.watchSideEffect()
         )
         effectHandler = WelcomeEffectHandler(
             carRepo: CarRepo(carQueries: db.carQueries),
             modifier: RealDataModifier(database: db))
         
-        effectHandler.bindToStore(effectFlow: obsStore.store.observeSideEffect()) { event in
+        effectHandler.bindToStore(effectFlow: store.observeSideEffect()) { event in
             store.dispatch(event: event)
         }
         
-        obsStore.store.start {
+        store.start {
             let initEffects : Set = [WelcomeEffects.LoadInitialData.shared]
             return initEffects
         }
@@ -37,7 +34,7 @@ struct iOSApp: App {
 	var body: some Scene {
         
 		WindowGroup {
-            ContentView().environmentObject(obsStore)
+            WelcomeScreen().environmentObject(obsStore)
 		}
 	}
 }
