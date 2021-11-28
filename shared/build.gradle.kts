@@ -28,7 +28,7 @@ kotlin {
     val commonMain by getting {
       dependencies {
         implementation("com.squareup.sqldelight:coroutines-extensions:1.5.3")
-        implementation("io.github.aakira:napier:2.2.0")
+        implementation("io.github.aakira:napier:2.1.0")
       }
     }
     val commonTest by getting {

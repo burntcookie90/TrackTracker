@@ -7,15 +7,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import me.vishnu.tracktracker.shared.stores.welcome.WelcomeEffectHandler
 
-interface State
+interface Model
 interface Event
 interface Effect
 
-interface Store<S : State, E : Event, F : Effect> {
+interface Store<M : Model, E : Event, F : Effect> {
   fun start(init: () -> Set<F> = { emptySet() })
-  fun observeState(): StateFlow<S>
+  fun observeState(): StateFlow<M>
   fun observeSideEffect(): Flow<F>
   fun dispatch(event: E)
 }
@@ -35,11 +34,11 @@ abstract class EffectHandler<F : Effect, E : Event> :
   }
 }
 
-fun <S : State, E : Event, F : Effect> Loop(
-  store: Store<S, E, F>,
+fun <M : Model, E : Event, F : Effect> Loop(
+  store: Store<M, E, F>,
   effectHandler: EffectHandler<F, E>,
   init: () -> Set<F>,
-): Pair<StateFlow<S>, (E) -> Unit> {
+): Pair<StateFlow<M>, (E) -> Unit> {
   effectHandler.bindToStore(store.observeSideEffect(), store::dispatch)
   store.start(init)
   return store.observeState() to store::dispatch

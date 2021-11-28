@@ -3,12 +3,12 @@ package me.vishnu.tracktracker.shared.stores.welcome
 import me.vishnu.tracktracker.shared.models.UiCar
 import me.vishnu.tracktracker.shared.stores.Event
 import me.vishnu.tracktracker.shared.stores.Effect
-import me.vishnu.tracktracker.shared.stores.State
+import me.vishnu.tracktracker.shared.stores.Model
 
 data class WelcomeModel(
   val cars: List<UiCar> = emptyList(),
   val addCarMode: Boolean = false
-) : State
+) : Model
 
 sealed class WelcomeEvents : Event {
   object AddCar : WelcomeEvents()
