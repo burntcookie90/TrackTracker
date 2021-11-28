@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import me.vishnu.tracktracker.android.ui.theme.AppTheme
 import me.vishnu.tracktracker.shared.DriverFactory
 import me.vishnu.tracktracker.shared.createDatabase
+import me.vishnu.tracktracker.shared.graph.InjectAppComponent
+import me.vishnu.tracktracker.shared.graph.InjectWelcomeComponent
 import me.vishnu.tracktracker.shared.initLogger
 import me.vishnu.tracktracker.shared.models.UiCar
 import me.vishnu.tracktracker.shared.models.titleDisplay
@@ -31,19 +33,17 @@ import me.vishnu.tracktracker.shared.stores.Loop
 import me.vishnu.tracktracker.shared.stores.welcome.*
 
 class MainActivity : ComponentActivity() {
-  private lateinit var dataModifier: DataModifier
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     initLogger()
 
     val db = createDatabase(DriverFactory(this))
-    dataModifier = RealDataModifier(db)
-    val carRepo = CarRepo(db.carQueries)
+    val component = InjectAppComponent(db)
+    val welcomeComponent = InjectWelcomeComponent(component)
     val (loop, eventCallback) =
       Loop(
         WelcomeStore(),
-        WelcomeEffectHandler(carRepo = carRepo, modifier = dataModifier)
+        welcomeComponent.welcomeEffectHandler
       ) {
         setOf(WelcomeEffects.LoadInitialData)
       }

@@ -5,9 +5,11 @@ import com.squareup.sqldelight.runtime.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import me.tatarka.inject.annotations.Inject
 import me.vishnu.tracktracker.db.CarQueries
 import me.vishnu.tracktracker.shared.models.UiCar
 
+@Inject
 class CarRepo(private val carQueries: CarQueries) {
   fun getAllCars(): Flow<List<UiCar>> = carQueries.selectAll()
     .asFlow()

@@ -3,13 +3,13 @@ import shared
 
 @main
 struct iOSApp: App {
-    let db = DriverFactoryKt.createDatabase(driverFactory: DriverFactory())
     let obsStore: ObservableStore<WelcomeStore, WelcomeModel, WelcomeEvents, WelcomeEffects>
-    let effectHandler : WelcomeEffectHandler
-    
     
     init() {
         LoggerKt.doInitLogger()
+        let db = DriverFactoryKt.createDatabase(driverFactory: DriverFactory())
+        let component = InjectAppComponent(db: db)
+        let welcomeComponent = InjectWelcomeComponent(parent: component)
         let store = WelcomeStore()
         obsStore = ObservableStore<WelcomeStore, WelcomeModel, WelcomeEvents, WelcomeEffects>(
             store: store,
@@ -17,10 +17,7 @@ struct iOSApp: App {
             stateWatcher: store.watchState(),
             sideEffectWatcher: store.watchSideEffect()
         )
-        effectHandler = WelcomeEffectHandler(
-            carRepo: CarRepo(carQueries: db.carQueries),
-            modifier: RealDataModifier(database: db))
-        
+        let effectHandler = welcomeComponent.welcomeEffectHandler
         effectHandler.bindToStore(effectFlow: store.observeSideEffect()) { event in
             store.dispatch(event: event)
         }

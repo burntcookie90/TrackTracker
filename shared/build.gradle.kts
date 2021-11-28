@@ -2,6 +2,7 @@ plugins {
   kotlin("multiplatform")
   id("com.android.library")
   id("com.squareup.sqldelight")
+  id("com.google.devtools.ksp") version "1.5.31-1.0.1"
 }
 
 sqldelight {
@@ -9,6 +10,10 @@ sqldelight {
     packageName = "me.vishnu.tracktracker.db"
     schemaOutputDirectory = file("build/schemas")
   }
+}
+
+dependencies {
+  add("kspMetadata", "me.tatarka.inject:kotlin-inject-compiler-ksp:0.4.0")
 }
 
 kotlin {
@@ -34,6 +39,7 @@ kotlin {
         }
         implementation("com.squareup.sqldelight:coroutines-extensions:1.5.3")
         implementation("io.github.aakira:napier:2.1.0")
+        api("me.tatarka.inject:kotlin-inject-runtime:0.4.0")
       }
     }
     val commonTest by getting {
@@ -76,6 +82,17 @@ kotlin {
       iosArm64Test.dependsOn(this)
       iosSimulatorArm64Test.dependsOn(this)
     }
+  }
+}
+
+// Generate common code with ksp instead of per-platform, hopefully this won't be needed in the future.
+// https://github.com/google/ksp/issues/567
+kotlin.sourceSets.commonMain {
+  kotlin.srcDir("build/generated/ksp/commonMain/kotlin")
+}
+tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().all {
+  if (name != "kspKotlinMetadata") {
+    dependsOn("kspKotlinMetadata")
   }
 }
 

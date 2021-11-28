@@ -3,9 +3,11 @@ package me.vishnu.tracktracker.shared.modifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import me.tatarka.inject.annotations.Inject
 import me.vishnu.tracktracker.db.CarQueries
 import me.vishnu.tracktracker.db.Database
 
+@Inject
 class RealDataModifier(database: Database) : DataModifier,
   CoroutineScope by CoroutineScope(Dispatchers.Unconfined) {
   private val carQueries = database.carQueries
