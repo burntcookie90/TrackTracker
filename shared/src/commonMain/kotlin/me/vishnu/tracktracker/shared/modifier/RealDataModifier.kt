@@ -8,10 +8,8 @@ import me.vishnu.tracktracker.db.CarQueries
 import me.vishnu.tracktracker.db.Database
 
 @Inject
-class RealDataModifier(database: Database) : DataModifier,
+class RealDataModifier(private val carQueries: CarQueries) : DataModifier,
   CoroutineScope by CoroutineScope(Dispatchers.Unconfined) {
-  private val carQueries = database.carQueries
-
 
   override fun submit(mod: Modification) = when (mod) {
     is Modification.Car.CreateCar -> createCar(mod)

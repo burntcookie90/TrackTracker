@@ -13,6 +13,6 @@ annotation class WelcomeScope
 @WelcomeScope
 @Component
 abstract class WelcomeComponent(@Component val parent: AppComponent) {
-  abstract val welcomeStore: WelcomeStore
-  abstract val welcomeEffectHandler: WelcomeEffectHandler
+  abstract val welcomeStore: WelcomeStore @WelcomeScope get
+  abstract val welcomeEffectHandler: WelcomeEffectHandler @WelcomeScope get
 }

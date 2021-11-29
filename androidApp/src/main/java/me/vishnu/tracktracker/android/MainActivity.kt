@@ -14,23 +14,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import me.vishnu.tracktracker.android.ui.theme.AppTheme
 import me.vishnu.tracktracker.shared.DriverFactory
-import me.vishnu.tracktracker.shared.createDatabase
 import me.vishnu.tracktracker.shared.graph.InjectAppComponent
 import me.vishnu.tracktracker.shared.graph.InjectWelcomeComponent
-import me.vishnu.tracktracker.shared.initLogger
 import me.vishnu.tracktracker.shared.models.UiCar
 import me.vishnu.tracktracker.shared.models.titleDisplay
-import me.vishnu.tracktracker.shared.modifier.DataModifier
-import me.vishnu.tracktracker.shared.modifier.RealDataModifier
-import me.vishnu.tracktracker.shared.repos.CarRepo
 import me.vishnu.tracktracker.shared.stores.Loop
-import me.vishnu.tracktracker.shared.stores.loop
 import me.vishnu.tracktracker.shared.stores.welcome.*
 
 class MainActivity : ComponentActivity() {
@@ -39,35 +32,35 @@ class MainActivity : ComponentActivity() {
 
     val component = InjectAppComponent(DriverFactory(this))
     val welcomeComponent = InjectWelcomeComponent(component)
-    val (loop, eventCallback) = Loop(
+    val (loopState, dispatch) = Loop(
       welcomeComponent.welcomeStore,
       welcomeComponent.welcomeEffectHandler
     ) { setOf(WelcomeEffects.LoadInitialData) }
 
     setContent {
       AppTheme {
-        val state = loop.collectAsState(initial = WelcomeModel())
+        val state = loopState.collectAsState(initial = WelcomeModel())
         Log.d("Meow", "${state.value}")
-        CarScreen(state.value, eventCallback)
+        CarScreen(state.value, dispatch)
       }
     }
   }
 }
 
 @Composable
-fun CarScreen(state: WelcomeModel, eventCallback: (WelcomeEvents) -> Unit) {
+fun CarScreen(state: WelcomeModel, dispatch: (WelcomeEvents) -> Unit) {
   Scaffold(
     topBar = { TopAppBar(title = { Text("Track Tracker") }) },
     floatingActionButton = {
       if (!state.addCarMode) {
         FloatingActionButton(onClick = {
-          eventCallback(WelcomeEvents.AddCar)
+          dispatch(WelcomeEvents.AddCar)
         }) { Icon(Icons.Default.Add, contentDescription = "Add Car Button") }
       }
     }
   ) {
     if (state.addCarMode) {
-      CarScreenAddCar(state.selectableYears, eventCallback)
+      CarScreenAddCar(state.selectableYears, dispatch)
     } else {
       CarScreenDisplay(state)
     }
