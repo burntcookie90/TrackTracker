@@ -1,9 +1,6 @@
 package me.vishnu.tracktracker.shared.stores.welcome
 
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.tatarka.inject.annotations.Inject
@@ -30,7 +27,7 @@ class WelcomeEffectHandler(
     Napier.d("Load Initial Data", tag = "Meow")
     launch {
       carRepo.getAllCars()
-        .collect { eventDispatch(WelcomeEvents.InitialDataLoaded(cars = it)) }
+        .collect { dispatch(WelcomeEvents.InitialDataLoaded(cars = it)) }
     }
   }
 

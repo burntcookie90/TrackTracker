@@ -30,23 +30,19 @@ import me.vishnu.tracktracker.shared.modifier.DataModifier
 import me.vishnu.tracktracker.shared.modifier.RealDataModifier
 import me.vishnu.tracktracker.shared.repos.CarRepo
 import me.vishnu.tracktracker.shared.stores.Loop
+import me.vishnu.tracktracker.shared.stores.loop
 import me.vishnu.tracktracker.shared.stores.welcome.*
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    initLogger()
 
-    val db = createDatabase(DriverFactory(this))
-    val component = InjectAppComponent(db)
+    val component = InjectAppComponent(DriverFactory(this))
     val welcomeComponent = InjectWelcomeComponent(component)
-    val (loop, eventCallback) =
-      Loop(
-        WelcomeStore(),
-        welcomeComponent.welcomeEffectHandler
-      ) {
-        setOf(WelcomeEffects.LoadInitialData)
-      }
+    val (loop, eventCallback) = Loop(
+      welcomeComponent.welcomeStore,
+      welcomeComponent.welcomeEffectHandler
+    ) { setOf(WelcomeEffects.LoadInitialData) }
 
     setContent {
       AppTheme {
@@ -104,8 +100,7 @@ private fun CarScreenAddCar(selectableYears: List<Int>, eventCallback: (WelcomeE
       onValueChange = { newValue: String ->
         if (newValue.isNotEmpty()) {
           year.value = newValue.toInt()
-        }
-        else {
+        } else {
           year.value = 0
         }
       },

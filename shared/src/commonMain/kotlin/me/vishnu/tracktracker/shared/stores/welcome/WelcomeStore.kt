@@ -6,8 +6,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import me.tatarka.inject.annotations.Inject
 import me.vishnu.tracktracker.shared.stores.Store
 
+@Inject
 class WelcomeStore : Store<WelcomeModel, WelcomeEvents, WelcomeEffects>,
   CoroutineScope by CoroutineScope(Dispatchers.Main) {
 

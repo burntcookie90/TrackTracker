@@ -3,30 +3,25 @@ import shared
 
 @main
 struct iOSApp: App {
-    let obsStore: ObservableStore<WelcomeStore, WelcomeModel, WelcomeEvents, WelcomeEffects>
+    typealias ObservableWelcomeStore = ObservableStore<WelcomeStore, WelcomeModel, WelcomeEvents, WelcomeEffects>
+    let obsStore: ObservableWelcomeStore
+    let component = InjectAppComponent(driverFactory: DriverFactory())
     
     init() {
-        LoggerKt.doInitLogger()
-        let db = DriverFactoryKt.createDatabase(driverFactory: DriverFactory())
-        let component = InjectAppComponent(db: db)
         let welcomeComponent = InjectWelcomeComponent(parent: component)
-        let store = WelcomeStore()
-        obsStore = ObservableStore<WelcomeStore, WelcomeModel, WelcomeEvents, WelcomeEffects>(
+        let store = welcomeComponent.welcomeStore
+        let effectHandler = welcomeComponent.welcomeEffectHandler
+        obsStore = ObservableWelcomeStore(
             store: store,
             state: WelcomeModel.Companion.shared.defaultModel(),
             stateWatcher: store.watchState(),
             sideEffectWatcher: store.watchSideEffect()
         )
-        let effectHandler = welcomeComponent.welcomeEffectHandler
-        effectHandler.bindToStore(effectFlow: store.observeSideEffect()) { event in
-            store.dispatch(event: event)
-        }
         
-        store.start {
+        _ = Loop<WelcomeModel, WelcomeEvents, WelcomeEffects, WelcomeEffectHandler>(store: store, effectHandler: effectHandler) {
             let initEffects : Set = [WelcomeEffects.LoadInitialData.shared]
             return initEffects
         }
-        
     }
 	var body: some Scene {
         

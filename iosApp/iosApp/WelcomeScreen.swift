@@ -17,7 +17,6 @@ struct WelcomeScreen: ConnectedView {
     }
     
     func map(state: WelcomeModel, dispatch: @escaping DispatchFunction<WelcomeEvents>) -> Props {
-        print("new model \(state)")
         return Props(
             addCarMode: state.addCarMode,
             cars: state.cars,
