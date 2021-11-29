@@ -1,6 +1,5 @@
 package me.vishnu.tracktracker.shared.stores.welcome
 
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import me.tatarka.inject.annotations.Inject
@@ -16,7 +15,6 @@ class WelcomeEffectHandler(
 ) : EffectHandler<WelcomeEffects, WelcomeEvents>() {
 
   override val handler: suspend (value: WelcomeEffects) -> Unit = { effect ->
-    Napier.d("Handling effect: $effect", tag = "Meow")
     when (effect) {
       is WelcomeEffects.CreateCar -> createCar(effect)
       WelcomeEffects.LoadInitialData -> loadInitialData(effect as WelcomeEffects.LoadInitialData)
@@ -24,7 +22,6 @@ class WelcomeEffectHandler(
   }
 
   private fun loadInitialData(effect: WelcomeEffects.LoadInitialData) {
-    Napier.d("Load Initial Data", tag = "Meow")
     launch {
       carRepo.getAllCars()
         .collect { dispatch(WelcomeEvents.InitialDataLoaded(cars = it)) }

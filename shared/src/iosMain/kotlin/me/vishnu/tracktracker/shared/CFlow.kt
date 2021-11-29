@@ -16,11 +16,9 @@ fun interface Closeable {
 
 class CFlow<T : Any> internal constructor(private val origin: Flow<T>) : Flow<T> by origin {
   fun watch(block: (T) -> Unit): Closeable {
-    Napier.d("Watching CFlow")
     val job = Job()
 
     onEach {
-      Napier.d("Emitting new item: $it")
       block(it)
     }.launchIn(CoroutineScope(Dispatchers.Main + job))
 

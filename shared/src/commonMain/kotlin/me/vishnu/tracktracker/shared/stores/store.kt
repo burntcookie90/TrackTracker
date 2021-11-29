@@ -1,12 +1,11 @@
 package me.vishnu.tracktracker.shared.stores
 
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import me.vishnu.tracktracker.shared.stores.welcome.WelcomeEffects
-import me.vishnu.tracktracker.shared.stores.welcome.WelcomeModel
 
 interface Model
 interface Event
@@ -26,7 +25,6 @@ abstract class EffectHandler<F : Effect, E : Event> :
     private set
 
   fun bindToStore(effectFlow: Flow<F>, dispatch: (E) -> Unit) {
-    Napier.d("Effect Handler bind", tag = "Meow")
     this.dispatch = dispatch
     launch {
       effectFlow.collect(handler)

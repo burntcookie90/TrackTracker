@@ -1,6 +1,5 @@
 package me.vishnu.tracktracker.shared.stores.welcome
 
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,7 +18,6 @@ class WelcomeStore : Store<WelcomeModel, WelcomeEvents, WelcomeEffects>,
   override fun start(init: () -> Set<WelcomeEffects>) {
     launch {
       init().forEach {
-        Napier.d("Handling init: $it", tag = "Meow")
         sideEffect.emit(it)
       }
     }
@@ -29,7 +27,6 @@ class WelcomeStore : Store<WelcomeModel, WelcomeEvents, WelcomeEffects>,
   override fun observeSideEffect() = sideEffect
 
   override fun dispatch(event: WelcomeEvents) {
-    Napier.d("Event received: $event")
     val oldState = state.value
     when (event) {
       WelcomeEvents.AddCar -> launch {
