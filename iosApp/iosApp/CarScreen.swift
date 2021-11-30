@@ -1,11 +1,11 @@
 import SwiftUI
 import shared
 
-struct WelcomeScreen: ConnectedView {
-  typealias S = WelcomeStore
-  typealias M = WelcomeModel
-  typealias E = WelcomeEvents
-  typealias F = WelcomeEffects
+struct CarScreen: ConnectedView {
+  typealias S = CarScreenStore
+  typealias M = CarScreenModel
+  typealias E = CarScreenEvents
+  typealias F = CarScreenEffects
   
   struct Props {
     let addCarMode: Bool
@@ -16,17 +16,17 @@ struct WelcomeScreen: ConnectedView {
     let onCreateCar: (UiCar) -> Void
   }
   
-  func map(state: WelcomeModel, dispatch: @escaping DispatchFunction<WelcomeEvents>) -> Props {
+  func map(state: CarScreenModel, dispatch: @escaping DispatchFunction<CarScreenEvents>) -> Props {
     return Props(
       addCarMode: state.addCarMode,
       cars: state.cars,
       selectableYears: state.selectableYears.map({ kInt in
         kInt.intValue
       }),
-      onAddCar: { dispatch(WelcomeEvents.AddCar.shared)},
-      onDiscardCreateCar: { dispatch(WelcomeEvents.DismissAddCarDialog.shared)},
+      onAddCar: { dispatch(CarScreenEvents.AddCar.shared)},
+      onDiscardCreateCar: { dispatch(CarScreenEvents.DismissAddCarDialog.shared)},
       onCreateCar: { car in
-        dispatch(WelcomeEvents.CreateCar(car: car))
+        dispatch(CarScreenEvents.CreateCar(car: car))
       }
     )
   }
@@ -107,7 +107,7 @@ struct AddCarView: View {
           onDiscard()
         }
         Button("Submit") {
-          onSubmit(UiCar(year: Int32(year), make: make, model: model,
+          onSubmit(UiCarKt.uiCar(year: Int32(year), make: make, model: model,
                          trim: trim, nickname: nickname))
         }
       }
@@ -116,6 +116,6 @@ struct AddCarView: View {
 }
 struct ContentView_Previews: PreviewProvider {
   static var previews: some View {
-    WelcomeScreen()
+    CarScreen()
   }
 }

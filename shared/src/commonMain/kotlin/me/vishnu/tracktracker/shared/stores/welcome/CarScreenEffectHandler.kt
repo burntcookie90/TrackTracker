@@ -9,26 +9,26 @@ import me.vishnu.tracktracker.shared.repos.CarRepo
 import me.vishnu.tracktracker.shared.stores.EffectHandler
 
 @Inject
-class WelcomeEffectHandler(
+class CarScreenEffectHandler(
   private val carRepo: CarRepo,
   private val modifier: DataModifier,
-) : EffectHandler<WelcomeEffects, WelcomeEvents>() {
+) : EffectHandler<CarScreenEffects, CarScreenEvents>() {
 
-  override val handler: suspend (value: WelcomeEffects) -> Unit = { effect ->
+  override val handler: suspend (value: CarScreenEffects) -> Unit = { effect ->
     when (effect) {
-      is WelcomeEffects.CreateCar -> createCar(effect)
-      WelcomeEffects.LoadInitialData -> loadInitialData(effect as WelcomeEffects.LoadInitialData)
+      is CarScreenEffects.CreateCar -> createCar(effect)
+      CarScreenEffects.LoadInitialData -> loadInitialData(effect as CarScreenEffects.LoadInitialData)
     }
   }
 
-  private fun loadInitialData(effect: WelcomeEffects.LoadInitialData) {
+  private fun loadInitialData(effect: CarScreenEffects.LoadInitialData) {
     launch {
       carRepo.getAllCars()
-        .collect { dispatch(WelcomeEvents.InitialDataLoaded(cars = it)) }
+        .collect { dispatch(CarScreenEvents.InitialDataLoaded(cars = it)) }
     }
   }
 
-  private fun createCar(effect: WelcomeEffects.CreateCar) {
+  private fun createCar(effect: CarScreenEffects.CreateCar) {
     modifier.submit(
       Modification.Car.CreateCar(
         year = effect.car.year,

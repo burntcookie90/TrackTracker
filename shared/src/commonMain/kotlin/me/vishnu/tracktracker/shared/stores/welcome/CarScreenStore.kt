@@ -9,13 +9,13 @@ import me.tatarka.inject.annotations.Inject
 import me.vishnu.tracktracker.shared.stores.Store
 
 @Inject
-class WelcomeStore : Store<WelcomeModel, WelcomeEvents, WelcomeEffects>,
+class CarScreenStore : Store<CarScreenModel, CarScreenEvents, CarScreenEffects>,
   CoroutineScope by CoroutineScope(Dispatchers.Main) {
 
-  private val state = MutableStateFlow(WelcomeModel())
-  private val sideEffect = MutableSharedFlow<WelcomeEffects>()
+  private val state = MutableStateFlow(CarScreenModel())
+  private val sideEffect = MutableSharedFlow<CarScreenEffects>()
 
-  override fun start(init: () -> Set<WelcomeEffects>) {
+  override fun start(init: () -> Set<CarScreenEffects>) {
     launch {
       init().forEach {
         sideEffect.emit(it)
@@ -26,20 +26,20 @@ class WelcomeStore : Store<WelcomeModel, WelcomeEvents, WelcomeEffects>,
   override fun observeState() = state
   override fun observeSideEffect() = sideEffect
 
-  override fun dispatch(event: WelcomeEvents) {
+  override fun dispatch(event: CarScreenEvents) {
     val oldState = state.value
     when (event) {
-      WelcomeEvents.AddCar -> launch {
+      CarScreenEvents.AddCar -> launch {
         state.value = oldState.copy(addCarMode = true)
       }
-      WelcomeEvents.DismissAddCarDialog -> launch {
+      CarScreenEvents.DismissAddCarDialog -> launch {
         state.value = oldState.copy(addCarMode = false)
       }
-      is WelcomeEvents.CreateCar -> launch {
-        sideEffect.emit(WelcomeEffects.CreateCar(event.car))
+      is CarScreenEvents.CreateCar -> launch {
+        sideEffect.emit(CarScreenEffects.CreateCar(event.car))
         state.value = oldState.copy(addCarMode = false)
       }
-      is WelcomeEvents.InitialDataLoaded -> launch {
+      is CarScreenEvents.InitialDataLoaded -> launch {
         state.value = oldState.copy(cars = event.cars)
       }
     }

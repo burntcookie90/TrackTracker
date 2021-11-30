@@ -40,6 +40,7 @@ kotlin {
         implementation("com.squareup.sqldelight:coroutines-extensions:1.5.3")
         implementation("io.github.aakira:napier:2.1.0")
         api("me.tatarka.inject:kotlin-inject-runtime:0.4.0")
+        implementation("com.benasher44:uuid:0.3.1")
       }
     }
     val commonTest by getting {

@@ -5,29 +5,29 @@ import me.vishnu.tracktracker.shared.stores.Event
 import me.vishnu.tracktracker.shared.stores.Effect
 import me.vishnu.tracktracker.shared.stores.Model
 
-data class WelcomeModel(
+data class CarScreenModel(
   val cars: List<UiCar> = emptyList(),
   val addCarMode: Boolean = false,
   val selectableYears: List<Int> = (1950..2022).reversed().toList()
 ) : Model {
   companion object {
-    fun defaultModel() = WelcomeModel()
+    fun defaultModel() = CarScreenModel()
   }
 }
 
 
-sealed class WelcomeEvents : Event {
-  object AddCar : WelcomeEvents()
+sealed class CarScreenEvents : Event {
+  object AddCar : CarScreenEvents()
 
-  object DismissAddCarDialog: WelcomeEvents()
+  object DismissAddCarDialog: CarScreenEvents()
 
-  data class InitialDataLoaded(val cars: List<UiCar>) : WelcomeEvents()
+  data class InitialDataLoaded(val cars: List<UiCar>) : CarScreenEvents()
 
-  data class CreateCar(val car: UiCar) : WelcomeEvents()
+  data class CreateCar(val car: UiCar) : CarScreenEvents()
 }
 
-sealed class WelcomeEffects : Effect {
-  object LoadInitialData : WelcomeEffects()
+sealed class CarScreenEffects : Effect {
+  object LoadInitialData : CarScreenEffects()
 
-  data class CreateCar(val car: UiCar) : WelcomeEffects()
+  data class CreateCar(val car: UiCar) : CarScreenEffects()
 }

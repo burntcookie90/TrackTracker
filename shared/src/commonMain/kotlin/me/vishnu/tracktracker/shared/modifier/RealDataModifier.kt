@@ -18,6 +18,7 @@ class RealDataModifier(private val carQueries: CarQueries) : DataModifier,
   private fun createCar(mod: Modification.Car.CreateCar) {
     launch {
       carQueries.insertNewCar(
+        id = mod.id,
         year = mod.year.toLong(),
         make = mod.make,
         model = mod.model,

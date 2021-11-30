@@ -1,6 +1,6 @@
 package me.vishnu.tracktracker.shared
 
-import me.vishnu.tracktracker.shared.stores.welcome.WelcomeStore
+import me.vishnu.tracktracker.shared.stores.welcome.CarScreenStore
 
-fun WelcomeStore.watchState() = observeState().wrap()
-fun WelcomeStore.watchSideEffect() = observeSideEffect().wrap()
+fun CarScreenStore.watchState() = observeState().wrap()
+fun CarScreenStore.watchSideEffect() = observeSideEffect().wrap()

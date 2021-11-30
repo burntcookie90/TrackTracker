@@ -3,30 +3,30 @@ import shared
 
 @main
 struct iOSApp: App {
-  typealias ObservableWelcomeStore = ObservableStore<WelcomeStore, WelcomeModel, WelcomeEvents, WelcomeEffects>
-  let obsStore: ObservableWelcomeStore
+  typealias ObservableCarScreen = ObservableStore<CarScreenStore, CarScreenModel, CarScreenEvents, CarScreenEffects>
+  let obsStore: ObservableCarScreen
   let component = InjectAppComponent(driverFactory: DriverFactory())
   
   init() {
-    let welcomeComponent = InjectWelcomeComponent(parent: component)
-    let store = welcomeComponent.welcomeStore
-    let effectHandler = welcomeComponent.welcomeEffectHandler
-    obsStore = ObservableWelcomeStore(
+    let carScreenComponent = InjectCarScreenComponent(parent: component)
+    let store = carScreenComponent.carScreenStore
+    let effectHandler = carScreenComponent.carScreenEffectHandler
+    obsStore = ObservableCarScreen(
       store: store,
-      state: WelcomeModel.Companion.shared.defaultModel(),
+      state: CarScreenModel.Companion.shared.defaultModel(),
       stateWatcher: store.watchState(),
       sideEffectWatcher: store.watchSideEffect()
     )
     
-    _ = Loop<WelcomeModel, WelcomeEvents, WelcomeEffects, WelcomeEffectHandler>(store: store, effectHandler: effectHandler) {
-      let initEffects : Set = [WelcomeEffects.LoadInitialData.shared]
+    _ = Loop<CarScreenModel, CarScreenEvents, CarScreenEffects, CarScreenEffectHandler>(store: store, effectHandler: effectHandler) {
+      let initEffects : Set = [CarScreenEffects.LoadInitialData.shared]
       return initEffects
     }
   }
   var body: some Scene {
     
     WindowGroup {
-      WelcomeScreen().environmentObject(obsStore)
+      CarScreen().environmentObject(obsStore)
     }
   }
 }

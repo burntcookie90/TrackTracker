@@ -1,13 +1,17 @@
 CREATE TABLE track (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     note_id INTEGER
 );
 
+selectAll:
+SELECT *
+FROM track;
+
 insertNewTrack:
-INSERT INTO track(name)
-VALUES (?);
+INSERT INTO track(id, name)
+VALUES (?, ?);
 
 insertNewTrackWithNote:
-INSERT INTO track(name, note_id)
-VALUES (?, ?);
+INSERT INTO track(id, name, note_id)
+VALUES (?, ?, ?);

@@ -1,5 +1,7 @@
 package me.vishnu.tracktracker.shared.modifier
 
+import com.benasher44.uuid.uuid4
+
 sealed class Modification {
   sealed class Car: Modification() {
     data class CreateCar(
@@ -8,6 +10,8 @@ sealed class Modification {
       val model: String,
       val trim: String?,
       val nickname: String?
-    ): Car()
+    ): Car() {
+      val id: String = uuid4().toString()
+    }
   }
 }

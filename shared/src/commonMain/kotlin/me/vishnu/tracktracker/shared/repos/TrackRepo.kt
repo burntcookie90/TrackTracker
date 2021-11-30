@@ -7,22 +7,20 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import me.tatarka.inject.annotations.Inject
 import me.vishnu.tracktracker.db.CarQueries
+import me.vishnu.tracktracker.db.TrackQueries
 import me.vishnu.tracktracker.shared.models.UiCar
+import me.vishnu.tracktracker.shared.models.UiTrack
 
 @Inject
-class CarRepo(private val carQueries: CarQueries) {
-  fun getAllCars(): Flow<List<UiCar>> = carQueries.selectAll()
+class TrackRepo(private val trackQueries: TrackQueries) {
+  fun getAllTracks(): Flow<List<UiTrack>> = trackQueries.selectAll()
     .asFlow()
     .mapToList(Dispatchers.Unconfined)
-    .map { cars ->
-      cars.map { car ->
-        UiCar(
-          id = car.id,
-          year = car.year.toInt(),
-          make = car.make,
-          model = car.model,
-          trim = car.trim,
-          nickname = car.nickname
+    .map { tracks ->
+      tracks.map { track ->
+        UiTrack(
+          id = track.id,
+          name = track.name
         )
       }
     }

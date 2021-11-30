@@ -1,5 +1,5 @@
 CREATE TABLE car (
-    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    id TEXT PRIMARY KEY AUTOINCREMENT,
     year INTEGER NOT NULL,
     make TEXT NOT NULL,
     model TEXT NOT NULL,
@@ -13,9 +13,9 @@ SELECT *
 FROM car;
 
 insertNewCar:
-INSERT INTO car (year, make, model, trim, nickname)
-VALUES (?, ?, ?, ?, ?);
+INSERT INTO car (id, year, make, model, trim, nickname)
+VALUES (?, ?, ?, ?, ?, ?);
 
 insertNewCarWithNote:
-INSERT INTO car (year, make, model, trim, nickname, note_id)
-VALUES (?, ?, ?, ?, ?, ?);
+INSERT INTO car (id, year, make, model, trim, nickname, note_id)
+VALUES (?, ?, ?, ?, ?, ?, ?);
