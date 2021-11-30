@@ -1,6 +1,29 @@
 import SwiftUI
 import shared
 
+
+func carScreen(component: AppComponent) -> some View{
+  typealias ObservableCarScreen = ObservableStore<CarScreenStore, CarScreenModel, CarScreenEvents, CarScreenEffects>
+  let obsStore: ObservableCarScreen
+  let carScreenComponent = InjectCarScreenComponent(parent: component)
+  
+    let store = carScreenComponent.carScreenStore
+    let effectHandler = carScreenComponent.carScreenEffectHandler
+    obsStore = ObservableCarScreen(
+      store: store,
+      state: CarScreenModel.Companion.shared.defaultModel(),
+      stateWatcher: store.watchState(),
+      sideEffectWatcher: store.watchSideEffect()
+    )
+    
+    _ = Loop<CarScreenModel, CarScreenEvents, CarScreenEffects, CarScreenEffectHandler>(store: store, effectHandler: effectHandler) {
+      let initEffects : Set = [CarScreenEffects.LoadInitialData.shared]
+      return initEffects
+    }
+  
+  return CarScreen().environmentObject(obsStore)
+}
+
 struct CarScreen: ConnectedView {
   typealias S = CarScreenStore
   typealias M = CarScreenModel
