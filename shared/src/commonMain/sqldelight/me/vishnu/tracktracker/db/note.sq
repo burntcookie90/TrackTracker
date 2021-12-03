@@ -1,9 +1,9 @@
 CREATE TABLE note (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
     description TEXT NOT NULL
 );
 
 insertNewNote:
-INSERT INTO note (name, description)
-VALUES(?, ?);
+INSERT INTO note (id, name, description)
+VALUES(?, ?, ?);

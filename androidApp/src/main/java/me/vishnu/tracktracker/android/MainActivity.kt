@@ -19,8 +19,8 @@ class MainActivity : ComponentActivity() {
     val component = InjectAppComponent(DriverFactory(this))
     val carScreenComponent = InjectCarScreenComponent(component)
     val (loopState, dispatch) = Loop(
-      carScreenComponent.carScreenStore,
-      carScreenComponent.carScreenEffectHandler
+      store = carScreenComponent.carScreenStore,
+      effectHandler = carScreenComponent.carScreenEffectHandler,
     ) { setOf(CarScreenEffects.LoadInitialData) }
 
     setContent {
