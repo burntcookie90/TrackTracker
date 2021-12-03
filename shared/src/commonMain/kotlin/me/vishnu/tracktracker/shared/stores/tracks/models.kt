@@ -10,9 +10,9 @@ data class TrackScreenModel(
 ) : Model
 
 sealed class TrackScreenEvents : Event {
-
+  data class InitialDataLoaded(val tracks: List<UiTrack>): TrackScreenEvents()
 }
 
 sealed class TrackScreenEffects : Effect {
-
+  object LoadInitialData: TrackScreenEffects()
 }
