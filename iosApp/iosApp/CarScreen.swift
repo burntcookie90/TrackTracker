@@ -16,10 +16,14 @@ func carScreen(component: AppComponent) -> some View{
     sideEffectWatcher: store.watchSideEffect()
   )
   
-  _ = Loop<CarScreenModel, CarScreenEvents, CarScreenEffects, CarScreenEffectHandler>(store: store, effectHandler: effectHandler) {
-    let initEffects : Set = [CarScreenEffects.LoadInitialData.shared]
-    return initEffects
-  }
+  _ = Loop<CarScreenModel, CarScreenEvents, CarScreenEffects, CarScreenEffectHandler>(
+    store: store,
+    effectHandler: effectHandler,
+    startEffects: {
+      let initEffects : Set = [CarScreenEffects.LoadInitialData.shared]
+      return initEffects
+    },
+    eventSources: [Flow]())
   
   return CarScreen().environmentObject(obsStore)
 }

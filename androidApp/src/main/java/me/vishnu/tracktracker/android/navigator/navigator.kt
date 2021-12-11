@@ -24,7 +24,7 @@ fun Navigator(component: AppComponent, backButton: Flow<NavigationEvents.GoBack>
   val effectHandler = component.navigationEffectHandler
 
   val (loopState, dispatch) = remember {
-    Loop(store = store, effectHandler = effectHandler, eventSources = arrayOf(backButton))
+    Loop(store = store, effectHandler = effectHandler, eventSources = listOf(backButton))
   }
 
   Navigator(

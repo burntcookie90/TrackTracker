@@ -10,7 +10,7 @@ interface Event
 interface Effect
 
 interface Store<M : Model, E : Event, F : Effect> {
-  fun start(init: () -> Set<F> = { emptySet() }, vararg eventSources: Flow<E>)
+  fun start(init: () -> Set<F> = { emptySet() }, eventSources: List<Flow<E>> = emptyList())
   fun observeState(): StateFlow<M>
   fun observeSideEffect(): Flow<F>
   fun dispatch(event: E)
@@ -22,7 +22,7 @@ abstract class ActualStore<M : Model, E : Event, F : Effect>(
   private val state: MutableStateFlow<M> = MutableStateFlow(initialModel)
   private val sideEffects: MutableSharedFlow<F> = MutableSharedFlow(extraBufferCapacity = 1)
 
-  override fun start(init: () -> Set<F>, vararg eventSources: Flow<E>) {
+  override fun start(init: () -> Set<F>, eventSources: List<Flow<E>>) {
     launch {
       init().forEach { sideEffects.emit(it) }
     }
@@ -79,7 +79,7 @@ class Loop<M : Model, E : Event, F : Effect, H : EffectHandler<F, E>>(
   private val store: Store<M, E, F>,
   effectHandler: H,
   startEffects: () -> Set<F> = { emptySet() },
-  vararg eventSources: Flow<E>
+  eventSources: List<Flow<E>>
 ) {
 
   val state: StateFlow<M>
@@ -87,7 +87,7 @@ class Loop<M : Model, E : Event, F : Effect, H : EffectHandler<F, E>>(
 
   init {
     effectHandler.bindToStore(store.observeSideEffect(), store::dispatch)
-    store.start(startEffects, *eventSources)
+    store.start(startEffects, eventSources)
 
     state = store.observeState()
     eventCallback = store::dispatch
