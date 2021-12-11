@@ -13,7 +13,13 @@ class CarScreenStore : ActualStore<CarScreenModel, CarScreenEvents, CarScreenEff
       CarScreenEvents.DismissAddCarDialog -> next(model.copy(addCarMode = false))
       is CarScreenEvents.CreateCar -> next(
         model.copy(addCarMode = false),
-        CarScreenEffects.CreateCar(event.car)
+        CarScreenEffects.CreateCar(
+          year = event.year,
+          make = event.make,
+          model = event.model,
+          trim = event.trim,
+          nickname = event.nickname
+        )
       )
       is CarScreenEvents.InitialDataLoaded -> next(model.copy(cars = event.cars))
     }

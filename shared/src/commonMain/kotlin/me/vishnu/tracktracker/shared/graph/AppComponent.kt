@@ -1,5 +1,8 @@
 package me.vishnu.tracktracker.shared.graph
 
+import NavigationEffectHandler
+import NavigationStore
+import OnBackButtonPressed
 import me.tatarka.inject.annotations.Component
 import me.tatarka.inject.annotations.Provides
 import me.tatarka.inject.annotations.Scope
@@ -17,7 +20,9 @@ annotation class AppScope
 
 @AppScope
 @Component
-abstract class AppComponent(@get:Provides val driverFactory: DriverFactory) {
+abstract class AppComponent(
+  @get:Provides val driverFactory: DriverFactory,
+) {
 
   init {
     initLogger()
@@ -29,5 +34,9 @@ abstract class AppComponent(@get:Provides val driverFactory: DriverFactory) {
   @Provides @AppScope fun carQueries(db: Database): CarQueries = db.carQueries
   @Provides @AppScope fun trackQueries(db: Database): TrackQueries = db.trackQueries
 
-  val RealDataModifier.bind: DataModifier @Provides @AppScope get() = this
+  internal val RealDataModifier.bind: DataModifier @Provides @AppScope get() = this
+
+
+  abstract val navigationStore: NavigationStore @AppScope get
+  abstract val navigationEffectHandler: NavigationEffectHandler @AppScope get
 }

@@ -1,7 +1,6 @@
 package me.vishnu.tracktracker.shared.stores.welcome
 
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import me.tatarka.inject.annotations.Inject
 import me.vishnu.tracktracker.shared.modifier.DataModifier
 import me.vishnu.tracktracker.shared.modifier.Modification
@@ -14,28 +13,28 @@ class CarScreenEffectHandler(
   private val modifier: DataModifier,
 ) : EffectHandler<CarScreenEffects, CarScreenEvents>() {
 
-  override val handler: suspend (value: CarScreenEffects) -> Unit = { effect ->
+  override val handler: suspend (value: CarScreenEffects) -> CarScreenEvents? = { effect ->
     when (effect) {
       is CarScreenEffects.CreateCar -> createCar(effect)
-      CarScreenEffects.LoadInitialData -> loadInitialData(effect as CarScreenEffects.LoadInitialData)
+      is CarScreenEffects.LoadInitialData -> loadInitialData(effect)
     }
   }
 
-  private fun loadInitialData(effect: CarScreenEffects.LoadInitialData) {
-    launch {
-      carRepo.getAllCars()
-        .collect { dispatch(CarScreenEvents.InitialDataLoaded(cars = it)) }
-    }
-  }
+  private suspend fun loadInitialData(effect: CarScreenEffects.LoadInitialData) =
+    carRepo.getAllCars()
+      .first()
+      .let {
+        CarScreenEvents.InitialDataLoaded(it)
+      }
 
-  private fun createCar(effect: CarScreenEffects.CreateCar) {
+  private fun createCar(effect: CarScreenEffects.CreateCar) = consume{
     modifier.submit(
       Modification.Car.CreateCar(
-        year = effect.car.year,
-        make = effect.car.make,
-        model = effect.car.model,
-        trim = effect.car.trim,
-        nickname = effect.car.nickname
+        year = effect.year,
+        make = effect.make,
+        model = effect.model,
+        trim = effect.trim,
+        nickname = effect.nickname
       )
     )
   }

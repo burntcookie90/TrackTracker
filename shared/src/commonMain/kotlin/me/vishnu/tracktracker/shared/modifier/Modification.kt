@@ -14,4 +14,12 @@ sealed class Modification {
       val id: String = uuid4().toString()
     }
   }
+
+  sealed class Track: Modification() {
+    data class CreateTrack(
+      val name: String
+    ): Track() {
+      val id: String = uuid4().toString()
+    }
+  }
 }

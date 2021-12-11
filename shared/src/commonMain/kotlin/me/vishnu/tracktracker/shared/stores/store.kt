@@ -10,7 +10,7 @@ interface Event
 interface Effect
 
 interface Store<M : Model, E : Event, F : Effect> {
-  fun start(init: () -> Set<F> = { emptySet() })
+  fun start(init: () -> Set<F> = { emptySet() }, vararg eventSources: Flow<E>)
   fun observeState(): StateFlow<M>
   fun observeSideEffect(): Flow<F>
   fun dispatch(event: E)
@@ -20,11 +20,15 @@ abstract class ActualStore<M : Model, E : Event, F : Effect>(
   initialModel: M,
 ) : Store<M, E, F>, CoroutineScope by CoroutineScope(Dispatchers.Main) {
   private val state: MutableStateFlow<M> = MutableStateFlow(initialModel)
-  private val sideEffects: MutableSharedFlow<F> = MutableSharedFlow()
+  private val sideEffects: MutableSharedFlow<F> = MutableSharedFlow(extraBufferCapacity = 1)
 
-  override fun start(init: () -> Set<F>) {
+  override fun start(init: () -> Set<F>, vararg eventSources: Flow<E>) {
     launch {
       init().forEach { sideEffects.emit(it) }
+    }
+
+    launch {
+      eventSources.forEach { it.collect(::dispatch) }
     }
   }
 
@@ -36,12 +40,12 @@ abstract class ActualStore<M : Model, E : Event, F : Effect>(
 
   fun next(model: M, vararg effects: F) {
     launch {
-      state.value = model
-      dispatch(*effects)
+      state.emit(model)
+      dispatchEffects(*effects)
     }
   }
 
-  fun dispatch(vararg effects: F) {
+  fun dispatchEffects(vararg effects: F) {
     launch {
       effects.forEach { sideEffects.emit(it) }
     }
@@ -49,23 +53,33 @@ abstract class ActualStore<M : Model, E : Event, F : Effect>(
 }
 
 abstract class EffectHandler<F : Effect, E : Event> :
-  CoroutineScope by CoroutineScope(Dispatchers.Main) {
-  abstract val handler: suspend (value: F) -> Unit
+  CoroutineScope by CoroutineScope(Dispatchers.Unconfined) {
+  abstract val handler: suspend (value: F) -> E?
   lateinit var dispatch: (E) -> Unit
     private set
 
   fun bindToStore(effectFlow: Flow<F>, dispatch: (E) -> Unit) {
     this.dispatch = dispatch
     launch {
-      effectFlow.collect(handler)
+      effectFlow.map(handler).collect {
+        if (it != null) {
+          dispatch(it)
+        }
+      }
     }
+  }
+
+  protected fun consume(effectHandler: () -> Unit): E? {
+    effectHandler()
+    return null
   }
 }
 
 class Loop<M : Model, E : Event, F : Effect, H : EffectHandler<F, E>>(
   private val store: Store<M, E, F>,
   effectHandler: H,
-  init: () -> Set<F>,
+  startEffects: () -> Set<F> = { emptySet() },
+  vararg eventSources: Flow<E>
 ) {
 
   val state: StateFlow<M>
@@ -73,7 +87,7 @@ class Loop<M : Model, E : Event, F : Effect, H : EffectHandler<F, E>>(
 
   init {
     effectHandler.bindToStore(store.observeSideEffect(), store::dispatch)
-    store.start(init)
+    store.start(startEffects, *eventSources)
 
     state = store.observeState()
     eventCallback = store::dispatch

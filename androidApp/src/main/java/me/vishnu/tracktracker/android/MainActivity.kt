@@ -1,36 +1,36 @@
 package me.vishnu.tracktracker.android
 
+import NavigationEvents
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.addCallback
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.*
-import me.vishnu.tracktracker.android.screens.CarScreen
+import kotlinx.coroutines.flow.MutableSharedFlow
+import me.vishnu.tracktracker.android.navigator.Navigator
 import me.vishnu.tracktracker.android.ui.theme.AppTheme
 import me.vishnu.tracktracker.shared.DriverFactory
-import me.vishnu.tracktracker.shared.graph.InjectAppComponent
-import me.vishnu.tracktracker.shared.graph.InjectCarScreenComponent
-import me.vishnu.tracktracker.shared.stores.Loop
-import me.vishnu.tracktracker.shared.stores.welcome.*
+import me.vishnu.tracktracker.shared.graph.AppComponent
+import me.vishnu.tracktracker.shared.graph.create
 
 class MainActivity : ComponentActivity() {
+  private val backButtonFlow = MutableSharedFlow<NavigationEvents.GoBack>(extraBufferCapacity = 1)
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    val component = InjectAppComponent(DriverFactory(this))
-    val carScreenComponent = InjectCarScreenComponent(component)
-    val (loopState, dispatch) = Loop(
-      store = carScreenComponent.carScreenStore,
-      effectHandler = carScreenComponent.carScreenEffectHandler,
-    ) { setOf(CarScreenEffects.LoadInitialData) }
+    onBackPressedDispatcher.addCallback {
+      backButtonFlow.tryEmit(NavigationEvents.GoBack)
+    }
 
     setContent {
       AppTheme {
-        CarScreen(
-          state = loopState.collectAsState(initial = CarScreenModel()).value,
-          dispatch = dispatch
+        Navigator(AppComponent::class.create(
+          driverFactory = DriverFactory(this)
+        ),
+          backButton = backButtonFlow
         )
       }
     }
   }
+
 }
 

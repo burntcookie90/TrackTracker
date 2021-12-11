@@ -7,19 +7,19 @@ func carScreen(component: AppComponent) -> some View{
   let obsStore: ObservableCarScreen
   let carScreenComponent = InjectCarScreenComponent(parent: component)
   
-    let store = carScreenComponent.carScreenStore
-    let effectHandler = carScreenComponent.carScreenEffectHandler
-    obsStore = ObservableCarScreen(
-      store: store,
-      state: CarScreenModel.Companion.shared.defaultModel(),
-      stateWatcher: store.watchState(),
-      sideEffectWatcher: store.watchSideEffect()
-    )
-    
-    _ = Loop<CarScreenModel, CarScreenEvents, CarScreenEffects, CarScreenEffectHandler>(store: store, effectHandler: effectHandler) {
-      let initEffects : Set = [CarScreenEffects.LoadInitialData.shared]
-      return initEffects
-    }
+  let store = carScreenComponent.carScreenStore
+  let effectHandler = carScreenComponent.carScreenEffectHandler
+  obsStore = ObservableCarScreen(
+    store: store,
+    state: CarScreenModel.Companion.shared.defaultModel(),
+    stateWatcher: store.watchState(),
+    sideEffectWatcher: store.watchSideEffect()
+  )
+  
+  _ = Loop<CarScreenModel, CarScreenEvents, CarScreenEffects, CarScreenEffectHandler>(store: store, effectHandler: effectHandler) {
+    let initEffects : Set = [CarScreenEffects.LoadInitialData.shared]
+    return initEffects
+  }
   
   return CarScreen().environmentObject(obsStore)
 }
@@ -36,7 +36,7 @@ struct CarScreen: ConnectedView {
     let selectableYears: [Int]
     let onAddCar: () -> Void
     let onDiscardCreateCar: () -> Void
-    let onCreateCar: (UiCar) -> Void
+    let onCreateCar: (Int, String, String, String?, String?) -> Void
   }
   
   func map(state: CarScreenModel, dispatch: @escaping DispatchFunction<CarScreenEvents>) -> Props {
@@ -48,8 +48,10 @@ struct CarScreen: ConnectedView {
       }),
       onAddCar: { dispatch(CarScreenEvents.AddCar.shared)},
       onDiscardCreateCar: { dispatch(CarScreenEvents.DismissAddCarDialog.shared)},
-      onCreateCar: { car in
-        dispatch(CarScreenEvents.CreateCar(car: car))
+      onCreateCar: { year, make, model, trim, nickname in
+        dispatch(CarScreenEvents.CreateCar(
+          year: Int32(year), make: make, model: model, trim: trim, nickname: nickname
+        ))
       }
     )
   }
@@ -101,10 +103,10 @@ struct AddCarView: View {
   @State private var nickname: String = ""
   
   let onDiscard: () -> Void
-  let onSubmit: (UiCar) -> Void
+  let onSubmit: (Int, String, String, String?, String?) -> Void
   let selectableYears: [Int]
   
-  init(selectableYears: [Int], onDiscard: @escaping () -> Void, onSubmit: @escaping (UiCar) -> Void) {
+  init(selectableYears: [Int], onDiscard: @escaping () -> Void, onSubmit: @escaping (Int, String, String, String?, String?) -> Void ) {
     self.selectableYears = selectableYears
     self.year = self.selectableYears.first ?? 2021
     self.onDiscard = onDiscard
@@ -130,15 +132,9 @@ struct AddCarView: View {
           onDiscard()
         }
         Button("Submit") {
-          onSubmit(UiCarKt.uiCar(year: Int32(year), make: make, model: model,
-                         trim: trim, nickname: nickname))
+          onSubmit(year, make, model, trim, nickname)
         }
       }
     }
-  }
-}
-struct ContentView_Previews: PreviewProvider {
-  static var previews: some View {
-    CarScreen()
   }
 }

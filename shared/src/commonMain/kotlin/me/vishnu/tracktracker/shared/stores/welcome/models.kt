@@ -19,15 +19,27 @@ data class CarScreenModel(
 sealed class CarScreenEvents : Event {
   object AddCar : CarScreenEvents()
 
-  object DismissAddCarDialog: CarScreenEvents()
+  object DismissAddCarDialog : CarScreenEvents()
 
   data class InitialDataLoaded(val cars: List<UiCar>) : CarScreenEvents()
 
-  data class CreateCar(val car: UiCar) : CarScreenEvents()
+  data class CreateCar(
+    val year: Int,
+    val make: String,
+    val model: String,
+    val trim: String? = null,
+    val nickname: String? = null
+  ) : CarScreenEvents()
 }
 
 sealed class CarScreenEffects : Effect {
   object LoadInitialData : CarScreenEffects()
 
-  data class CreateCar(val car: UiCar) : CarScreenEffects()
+  data class CreateCar(
+    val year: Int,
+    val make: String,
+    val model: String,
+    val trim: String? = null,
+    val nickname: String? = null
+  ) : CarScreenEffects()
 }

@@ -9,20 +9,32 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import me.vishnu.tracktracker.shared.models.UiCar
 import me.vishnu.tracktracker.shared.models.titleDisplay
-import me.vishnu.tracktracker.shared.stores.welcome.CarScreenEvents
-import me.vishnu.tracktracker.shared.stores.welcome.CarScreenModel
+import me.vishnu.tracktracker.shared.stores.Loop
+import me.vishnu.tracktracker.shared.stores.welcome.*
 
 @Composable
-fun CarScreen(state: CarScreenModel, dispatch: (CarScreenEvents) -> Unit) {
+fun CarScreen(carScreenStore: CarScreenStore, carScreenEffectHandler: CarScreenEffectHandler) {
+  val (loopState, dispatch) = remember {
+    Loop(
+      store = carScreenStore,
+      effectHandler = carScreenEffectHandler,
+      startEffects = { setOf(CarScreenEffects.LoadInitialData) },
+    )
+  }
+
+  CarScreen(
+    state = loopState.collectAsState(initial = CarScreenModel()).value,
+    dispatch = dispatch
+  )
+}
+
+@Composable
+private fun CarScreen(state: CarScreenModel, dispatch: (CarScreenEvents) -> Unit) {
   Scaffold(
     topBar = { TopAppBar(title = { Text("Track Tracker") }) },
     floatingActionButton = {
@@ -109,13 +121,11 @@ private fun CarScreenAddCar(selectableYears: List<Int>, eventCallback: (CarScree
       Button(onClick = {
         eventCallback(
           CarScreenEvents.CreateCar(
-            UiCar(
-              year = year.value,
-              make = make.value,
-              model = model.value,
-              trim = trim.value,
-              nickname = nickname.value
-            )
+            year = year.value,
+            make = make.value,
+            model = model.value,
+            trim = trim.value,
+            nickname = nickname.value
           )
         )
       }) {
