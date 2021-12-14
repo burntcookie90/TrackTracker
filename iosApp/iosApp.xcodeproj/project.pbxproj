@@ -12,6 +12,8 @@
 		2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2152FB032600AC8F00CF470E /* iOSApp.swift */; };
 		271654172753D537002E53E2 /* ObservableStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 271654162753D537002E53E2 /* ObservableStore.swift */; };
 		278B77B827656E460050469A /* TypeAliases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 278B77B727656E460050469A /* TypeAliases.swift */; };
+		27E7FB3A276830F900ECF6AD /* Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27E7FB39276830F900ECF6AD /* Navigator.swift */; };
+		27E7FB3C2768402B00ECF6AD /* LazyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27E7FB3B2768402B00ECF6AD /* LazyView.swift */; };
 		7555FF83242A565900829871 /* CarScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7555FF82242A565900829871 /* CarScreen.swift */; };
 /* End PBXBuildFile section */
 
@@ -34,6 +36,8 @@
 		2152FB032600AC8F00CF470E /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
 		271654162753D537002E53E2 /* ObservableStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableStore.swift; sourceTree = "<group>"; };
 		278B77B727656E460050469A /* TypeAliases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeAliases.swift; sourceTree = "<group>"; };
+		27E7FB39276830F900ECF6AD /* Navigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigator.swift; sourceTree = "<group>"; };
+		27E7FB3B2768402B00ECF6AD /* LazyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyView.swift; sourceTree = "<group>"; };
 		7555FF7B242A565900829871 /* iosApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7555FF82242A565900829871 /* CarScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarScreen.swift; sourceTree = "<group>"; };
 		7555FF8C242A565B00829871 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -85,6 +89,8 @@
 				058557D7273AAEEB004C7B11 /* Preview Content */,
 				271654162753D537002E53E2 /* ObservableStore.swift */,
 				278B77B727656E460050469A /* TypeAliases.swift */,
+				27E7FB39276830F900ECF6AD /* Navigator.swift */,
+				27E7FB3B2768402B00ECF6AD /* LazyView.swift */,
 			);
 			path = iosApp;
 			sourceTree = "<group>";
@@ -188,7 +194,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				27E7FB3C2768402B00ECF6AD /* LazyView.swift in Sources */,
 				278B77B827656E460050469A /* TypeAliases.swift in Sources */,
+				27E7FB3A276830F900ECF6AD /* Navigator.swift in Sources */,
 				2152FB042600AC8F00CF470E /* iOSApp.swift in Sources */,
 				7555FF83242A565900829871 /* CarScreen.swift in Sources */,
 				271654172753D537002E53E2 /* ObservableStore.swift in Sources */,

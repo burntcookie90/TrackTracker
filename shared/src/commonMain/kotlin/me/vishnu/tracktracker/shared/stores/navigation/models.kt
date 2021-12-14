@@ -7,7 +7,11 @@ enum class ScreenTarget {
 }
 data class NavigationModel(
   val navStack: Set<ScreenTarget> = setOf(ScreenTarget.ROOT)
-) : Model
+) : Model {
+  companion object {
+    fun defaultModel() = NavigationModel()
+  }
+}
 
 sealed class NavigationEvents : Event {
   data class NavigateTo(val target: ScreenTarget): NavigationEvents()
