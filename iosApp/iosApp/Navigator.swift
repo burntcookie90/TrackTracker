@@ -27,9 +27,11 @@ func navigator(component: AppComponent) -> some View{
     store: store,
     effectHandler: effectHandler,
     startEffects: { Set() },
-    eventSources: [Flow]())
+    eventSources: [Flow](),
+    logTag: nil
+  )
   
-  return Navigator().environmentObject(obsStore)
+  return Navigator(component: component).environmentObject(obsStore)
 }
 
 struct Navigator: ConnectedView {
@@ -38,20 +40,35 @@ struct Navigator: ConnectedView {
   typealias E = NavigationEvents
   typealias F = NavigationEffects
   
+  let component: AppComponent
+  
   struct Props {
-    let navStack: Set<ScreenTarget>
+    let navStack: [ScreenTarget]
+    let navigationDispatch: (ScreenTarget) -> Void
   }
   
   
   func map(state: NavigationModel, dispatch: @escaping DispatchFunction<NavigationEvents>) -> Props {
     return Props(
-      navStack: state.navStack
+      navStack: state.navStack,
+      navigationDispatch: { target in dispatch(NavigationEvents.NavigateTo(target: target)) }
     )
   }
   
   
   func body(props: Props) -> some View {
-    NavigationView{}
+    NavigationView{
+        switch props.navStack.last {
+        case ScreenTarget.root:
+          LazyView { rootScreen(navigationDispatch: props.navigationDispatch) }
+        case ScreenTarget.cars:
+          LazyView { carScreen(component: component) }
+        case ScreenTarget.tracks:
+          LazyView { rootScreen(navigationDispatch: props.navigationDispatch) }
+        case .none, .some(_):
+          Text("Error")
+        }
+    }
   }
   
 }

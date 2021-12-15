@@ -1,16 +1,24 @@
 package me.vishnu.tracktracker.shared.stores
 
+import io.github.aakira.napier.LogLevel
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 interface Model
 interface Event
 interface Effect
 
 interface Store<M : Model, E : Event, F : Effect> {
-  fun start(init: () -> Set<F> = { emptySet() }, eventSources: List<Flow<E>> = emptyList())
+  fun start(
+    init: () -> Set<F> = { emptySet() },
+    eventSources: List<Flow<E>> = emptyList(),
+    logTag: String? = null
+  )
+
   fun observeState(): StateFlow<M>
   fun observeSideEffect(): Flow<F>
   fun dispatch(event: E)
@@ -21,10 +29,21 @@ abstract class ActualStore<M : Model, E : Event, F : Effect>(
 ) : Store<M, E, F>, CoroutineScope by CoroutineScope(Dispatchers.Main) {
   private val state: MutableStateFlow<M> = MutableStateFlow(initialModel)
   private val sideEffects: MutableSharedFlow<F> = MutableSharedFlow(extraBufferCapacity = 1)
+  private var logTag: String? = null
 
-  override fun start(init: () -> Set<F>, eventSources: List<Flow<E>>) {
+  override fun start(
+    init: () -> Set<F>,
+    eventSources: List<Flow<E>>,
+    logTag: String?
+  ) {
+    this.logTag = logTag
     launch {
-      init().forEach { sideEffects.emit(it) }
+      init().forEach {
+        logTag?.let { tag ->
+          Napier.d("Running init effect: $it", tag = tag)
+        }
+        sideEffects.emit(it)
+      }
     }
 
     launch {
@@ -34,20 +53,33 @@ abstract class ActualStore<M : Model, E : Event, F : Effect>(
 
   override fun observeState() = state
   override fun observeSideEffect() = sideEffects
-  override fun dispatch(event: E) = update(state.value, event)
+  override fun dispatch(event: E) {
+    logTag?.let {
+      Napier.d("Event received: $event", tag = it)
+    }
+    update(state.value, event)
+  }
 
   abstract fun update(model: M, event: E)
 
   fun next(model: M, vararg effects: F) {
     launch {
+      logTag?.let {
+        Napier.d("Next: model: $model", tag = it)
+      }
       state.emit(model)
       dispatchEffects(*effects)
     }
   }
 
   fun dispatchEffects(vararg effects: F) {
+    logTag?.let {
+      Napier.d("Disptching effects: $effects", tag = it)
+    }
     launch {
-      effects.forEach { sideEffects.emit(it) }
+      effects.forEach {
+        sideEffects.emit(it)
+      }
     }
   }
 }
@@ -79,7 +111,8 @@ class Loop<M : Model, E : Event, F : Effect, H : EffectHandler<F, E>>(
   private val store: Store<M, E, F>,
   effectHandler: H,
   startEffects: () -> Set<F> = { emptySet() },
-  eventSources: List<Flow<E>>
+  eventSources: List<Flow<E>> = emptyList(),
+  logTag: String? = null
 ) {
 
   val state: StateFlow<M>
@@ -87,7 +120,7 @@ class Loop<M : Model, E : Event, F : Effect, H : EffectHandler<F, E>>(
 
   init {
     effectHandler.bindToStore(store.observeSideEffect(), store::dispatch)
-    store.start(startEffects, eventSources)
+    store.start(startEffects, eventSources, logTag)
 
     state = store.observeState()
     eventCallback = store::dispatch

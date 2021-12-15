@@ -6,7 +6,7 @@ enum class ScreenTarget {
   ROOT, TRACKS, CARS
 }
 data class NavigationModel(
-  val navStack: Set<ScreenTarget> = setOf(ScreenTarget.ROOT)
+  val navStack: List<ScreenTarget> = listOf(ScreenTarget.ROOT)
 ) : Model {
   companion object {
     fun defaultModel() = NavigationModel()

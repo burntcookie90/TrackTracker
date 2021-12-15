@@ -24,12 +24,10 @@ class ObservableStore<S: Store, M: Model, E: Event, F: Effect>: ObservableObject
     self.state = state
     
     self.stateWatcher = stateWatcher.watch { [weak self] state in
-      print("new state \(state)")
       self?.state = state
     }
     
     self.sideEffectWatcher = sideEffectWatcher.watch { [weak self] effect in
-      print("new effects \(effect)")
       self?.sideEffect = effect
     }
   }

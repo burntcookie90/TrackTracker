@@ -41,7 +41,6 @@ fun Navigator(
   dispatch: (NavigationEvents) -> Unit
 ) {
   val component = remember { appComponent }
-  Log.d("Navigator", "New model $model")
   when (model.navStack.last()) {
     ScreenTarget.ROOT -> RootScreen(dispatch = dispatch)
     ScreenTarget.TRACKS -> {

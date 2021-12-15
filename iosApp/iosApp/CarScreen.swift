@@ -23,7 +23,9 @@ func carScreen(component: AppComponent) -> some View{
       let initEffects : Set = [CarScreenEffects.LoadInitialData.shared]
       return initEffects
     },
-    eventSources: [Flow]())
+    eventSources: [Flow](),
+    logTag: nil
+  )
   
   return CarScreen().environmentObject(obsStore)
 }
@@ -61,7 +63,6 @@ struct CarScreen: ConnectedView {
   }
   
   func body(props: Props) -> some View {
-    NavigationView {
       VStack {
         if (props.addCarMode) {
           AddCarView(selectableYears: props.selectableYears, onDiscard: props.onDiscardCreateCar, onSubmit: props.onCreateCar)
@@ -87,8 +88,6 @@ struct CarScreen: ConnectedView {
             
           }
         }
-      }
-      .navigationTitle("Track Tracker")
     }
   }
   
