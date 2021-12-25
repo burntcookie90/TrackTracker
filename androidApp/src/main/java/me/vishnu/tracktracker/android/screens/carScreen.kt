@@ -24,6 +24,7 @@ fun CarScreen(carScreenStore: CarScreenStore, carScreenEffectHandler: CarScreenE
       store = carScreenStore,
       effectHandler = carScreenEffectHandler,
       startEffects = { setOf(CarScreenEffects.LoadInitialData) },
+      logTag = "CarScreen"
     )
   }
 

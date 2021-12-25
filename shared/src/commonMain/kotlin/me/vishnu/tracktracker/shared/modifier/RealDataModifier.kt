@@ -13,7 +13,7 @@ class RealDataModifier(
   private val carQueries: CarQueries,
   private val trackQueries: TrackQueries,
   ) : DataModifier,
-  CoroutineScope by CoroutineScope(Dispatchers.Unconfined) {
+  CoroutineScope by CoroutineScope(Dispatchers.Default) {
 
   override fun submit(mod: Modification) = when (mod) {
     is Modification.Car.CreateCar -> createCar(mod)
@@ -37,7 +37,8 @@ class RealDataModifier(
     launch {
       trackQueries.insertNewTrack(
         id = mod.id,
-        name = mod.name
+        name = mod.name,
+        location = mod.location
       )
     }
   }

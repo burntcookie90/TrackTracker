@@ -1,6 +1,7 @@
 CREATE TABLE track (
     id TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
+    location TEXT NOT NULL,
     note_id INTEGER
 );
 
@@ -9,9 +10,9 @@ SELECT *
 FROM track;
 
 insertNewTrack:
-INSERT INTO track(id, name)
-VALUES (?, ?);
+INSERT INTO track(id, name, location)
+VALUES (?, ?, ?);
 
 insertNewTrackWithNote:
-INSERT INTO track(id, name, note_id)
-VALUES (?, ?, ?);
+INSERT INTO track(id, name, location, note_id)
+VALUES (?, ?, ?, ?);

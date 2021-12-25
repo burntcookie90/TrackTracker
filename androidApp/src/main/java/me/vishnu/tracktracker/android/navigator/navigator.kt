@@ -5,6 +5,7 @@ import NavigationModel
 import ScreenTarget
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.flow.Flow
@@ -24,7 +25,12 @@ fun Navigator(component: AppComponent, backButton: Flow<NavigationEvents.GoBack>
   val effectHandler = component.navigationEffectHandler
 
   val (loopState, dispatch) = remember {
-    Loop(store = store, effectHandler = effectHandler, eventSources = listOf(backButton))
+    Loop(
+      store = store,
+      effectHandler = effectHandler,
+      eventSources = listOf(backButton),
+      logTag = "Navigator"
+    )
   }
 
   Navigator(
@@ -44,8 +50,7 @@ fun Navigator(
   when (model.navStack.last()) {
     ScreenTarget.ROOT -> RootScreen(dispatch = dispatch)
     ScreenTarget.TRACKS -> {
-      val trackScreenComponent: TrackScreenComponent =
-        remember { TrackScreenComponent::class.create(component) }
+      val trackScreenComponent = remember { TrackScreenComponent::class.create(component) }
       TrackScreen(
         store = trackScreenComponent.trackScreenStore,
         effectHandler = trackScreenComponent.trackScreenEffectHandler

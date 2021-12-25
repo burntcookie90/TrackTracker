@@ -1,6 +1,8 @@
 package me.vishnu.tracktracker.shared.stores.tracks
 
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import me.tatarka.inject.annotations.Inject
 import me.vishnu.tracktracker.shared.modifier.DataModifier
 import me.vishnu.tracktracker.shared.modifier.Modification
@@ -13,7 +15,7 @@ class TrackScreenEffectHandler(
   private val modifier: DataModifier,
 ) : EffectHandler<TrackScreenEffects, TrackScreenEvents>() {
 
-  override val handler: suspend (value: TrackScreenEffects) -> TrackScreenEvents? = { effect ->
+  override val handler: suspend (value: TrackScreenEffects) -> Flow<TrackScreenEvents?> = { effect ->
     when (effect) {
       is TrackScreenEffects.LoadInitialData -> loadInitialData(effect)
       is TrackScreenEffects.CreateTrack -> createTrack(effect)
@@ -22,10 +24,9 @@ class TrackScreenEffectHandler(
 
   private suspend fun loadInitialData(effect: TrackScreenEffects.LoadInitialData) =
     trackRepo.getAllTracks()
-      .first()
-      .let { TrackScreenEvents.InitialDataLoaded(tracks = it) }
+      .map { TrackScreenEvents.InitialDataLoaded(tracks = it) }
 
   private fun createTrack(effect: TrackScreenEffects.CreateTrack) = consume {
-    modifier.submit(Modification.Track.CreateTrack(effect.name))
+    modifier.submit(Modification.Track.CreateTrack(effect.name, effect.location))
   }
 }

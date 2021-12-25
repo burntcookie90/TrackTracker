@@ -1,12 +1,10 @@
 package me.vishnu.tracktracker.shared.stores
 
-import io.github.aakira.napier.LogLevel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 interface Model
 interface Event
@@ -24,12 +22,25 @@ interface Store<M : Model, E : Event, F : Effect> {
   fun dispatch(event: E)
 }
 
+sealed class Next<M : Model, F : Effect> {
+  data class WithModel<M : Model, F : Effect>(val model: M) : Next<M, F>()
+  data class WithModelAndEffects<M : Model, F : Effect>(
+    val model: M,
+    val effects: Set<F>
+  ) : Next<M, F>()
+
+  data class WithEffects<M : Model, F : Effect>(val effects: Set<F>) : Next<M, F>()
+
+  class NoChange<M : Model, F : Effect> : Next<M, F>()
+}
+
 abstract class ActualStore<M : Model, E : Event, F : Effect>(
   initialModel: M,
 ) : Store<M, E, F>, CoroutineScope by CoroutineScope(Dispatchers.Main) {
   private val state: MutableStateFlow<M> = MutableStateFlow(initialModel)
   private val sideEffects: MutableSharedFlow<F> = MutableSharedFlow(extraBufferCapacity = 1)
   private var logTag: String? = null
+  private val nextStream = MutableSharedFlow<Next<M, F>>()
 
   override fun start(
     init: () -> Set<F>,
@@ -39,71 +50,68 @@ abstract class ActualStore<M : Model, E : Event, F : Effect>(
     this.logTag = logTag
     launch {
       init().forEach {
-        logTag?.let { tag ->
-          Napier.d("Running init effect: $it", tag = tag)
-        }
+        logTag?.let { tag -> Napier.d("Running init effect: $it", tag = tag) }
         sideEffects.emit(it)
       }
     }
 
+    launch { eventSources.forEach { it.collect(::dispatch) } }
+
     launch {
-      eventSources.forEach { it.collect(::dispatch) }
+      nextStream.collect { next ->
+        logTag?.let { Napier.d("Next $next", tag = it) }
+        when (next) {
+          is Next.NoChange<M, F> -> {}
+          is Next.WithEffects<M, F> -> next.effects.forEach { sideEffects.tryEmit(it) }
+          is Next.WithModel<M, F> -> state.emit(next.model)
+          is Next.WithModelAndEffects<M, F> -> {
+            state.emit(next.model)
+            next.effects.forEach { sideEffects.emit(it) }
+          }
+        }
+      }
     }
   }
 
   override fun observeState() = state
   override fun observeSideEffect() = sideEffects
   override fun dispatch(event: E) {
-    logTag?.let {
-      Napier.d("Event received: $event", tag = it)
-    }
-    update(state.value, event)
-  }
-
-  abstract fun update(model: M, event: E)
-
-  fun next(model: M, vararg effects: F) {
+    logTag?.let { Napier.d("Event received: $event", tag = it) }
     launch {
-      logTag?.let {
-        Napier.d("Next: model: $model", tag = it)
-      }
-      state.emit(model)
-      dispatchEffects(*effects)
+      nextStream.emit(update(state.value, event))
     }
   }
 
-  fun dispatchEffects(vararg effects: F) {
-    logTag?.let {
-      Napier.d("Disptching effects: $effects", tag = it)
-    }
-    launch {
-      effects.forEach {
-        sideEffects.emit(it)
-      }
-    }
-  }
+  abstract fun update(model: M, event: E): Next<M, F>
+
+  fun noChange() = Next.NoChange<M, F>()
+  fun next(model: M) = Next.WithModel<M, F>(model = model)
+  fun next(vararg effects: F) = Next.WithEffects<M, F>(effects = effects.toSet())
+
+  fun next(model: M, vararg effects: F) = Next.WithModelAndEffects(
+    model = model,
+    effects = effects.toSet()
+  )
 }
 
 abstract class EffectHandler<F : Effect, E : Event> :
-  CoroutineScope by CoroutineScope(Dispatchers.Unconfined) {
-  abstract val handler: suspend (value: F) -> E?
+  CoroutineScope by CoroutineScope(Dispatchers.Default) {
+  abstract val handler: suspend (value: F) -> Flow<E?>
   lateinit var dispatch: (E) -> Unit
     private set
 
   fun bindToStore(effectFlow: Flow<F>, dispatch: (E) -> Unit) {
     this.dispatch = dispatch
     launch {
-      effectFlow.map(handler).collect {
-        if (it != null) {
-          dispatch(it)
-        }
-      }
+      effectFlow.flatMapConcat(handler)
+        .filterNotNull()
+        .collect { dispatch(it) }
     }
   }
 
-  protected fun consume(effectHandler: () -> Unit): E? {
+  protected fun consume(effectHandler: () -> Unit): Flow<E?> {
     effectHandler()
-    return null
+    return flowOf(null)
   }
 }
 
@@ -115,7 +123,10 @@ class Loop<M : Model, E : Event, F : Effect, H : EffectHandler<F, E>>(
   logTag: String? = null
 ) {
 
+  @Suppress("MemberVisibilityCanBePrivate")
   val state: StateFlow<M>
+
+  @Suppress("MemberVisibilityCanBePrivate")
   val eventCallback: (E) -> Unit
 
   init {

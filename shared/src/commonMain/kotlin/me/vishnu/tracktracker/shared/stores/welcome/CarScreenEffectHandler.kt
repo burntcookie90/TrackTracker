@@ -1,6 +1,7 @@
 package me.vishnu.tracktracker.shared.stores.welcome
 
-import kotlinx.coroutines.flow.first
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.*
 import me.tatarka.inject.annotations.Inject
 import me.vishnu.tracktracker.shared.modifier.DataModifier
 import me.vishnu.tracktracker.shared.modifier.Modification
@@ -13,21 +14,20 @@ class CarScreenEffectHandler(
   private val modifier: DataModifier,
 ) : EffectHandler<CarScreenEffects, CarScreenEvents>() {
 
-  override val handler: suspend (value: CarScreenEffects) -> CarScreenEvents? = { effect ->
+  override val handler: suspend (value: CarScreenEffects) -> Flow<CarScreenEvents?> = { effect ->
     when (effect) {
       is CarScreenEffects.CreateCar -> createCar(effect)
       is CarScreenEffects.LoadInitialData -> loadInitialData(effect)
     }
   }
 
-  private suspend fun loadInitialData(effect: CarScreenEffects.LoadInitialData) =
+  private fun loadInitialData(effect: CarScreenEffects.LoadInitialData) =
     carRepo.getAllCars()
-      .first()
-      .let {
+      .map {
         CarScreenEvents.InitialDataLoaded(it)
       }
 
-  private fun createCar(effect: CarScreenEffects.CreateCar) = consume{
+  private fun createCar(effect: CarScreenEffects.CreateCar) = consume {
     modifier.submit(
       Modification.Car.CreateCar(
         year = effect.year,

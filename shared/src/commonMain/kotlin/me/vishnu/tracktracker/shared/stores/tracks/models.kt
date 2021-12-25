@@ -8,15 +8,22 @@ import me.vishnu.tracktracker.shared.stores.Event
 import me.vishnu.tracktracker.shared.stores.Model
 
 data class TrackScreenModel(
-  val tracks: List<UiTrack> = emptyList()
+  val tracks: List<UiTrack> = emptyList(),
+  val addTrackModel: Boolean = false
 ) : Model
 
 sealed class TrackScreenEvents : Event {
   data class InitialDataLoaded(val tracks: List<UiTrack>): TrackScreenEvents()
-  data class AddTrack(val name: String): TrackScreenEvents()
+  object AddTrack: TrackScreenEvents()
+  object DismissAddTrack : TrackScreenEvents()
+
+  data class CreateTrack(
+    val name: String,
+    val location: String
+  ): TrackScreenEvents()
 }
 
 sealed class TrackScreenEffects : Effect {
   object LoadInitialData: TrackScreenEffects()
-  data class CreateTrack(val name: String): TrackScreenEffects()
+  data class CreateTrack(val name: String, val location: String): TrackScreenEffects()
 }

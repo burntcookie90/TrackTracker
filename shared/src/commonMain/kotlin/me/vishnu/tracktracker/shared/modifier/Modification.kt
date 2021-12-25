@@ -17,7 +17,8 @@ sealed class Modification {
 
   sealed class Track: Modification() {
     data class CreateTrack(
-      val name: String
+      val name: String,
+      val location: String
     ): Track() {
       val id: String = uuid4().toString()
     }
